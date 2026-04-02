@@ -315,7 +315,9 @@ func (i *Installer) ensureProviderVersionsMightNeed(
 			// unmanaged providers do not require installation
 			continue
 		}
-		acceptableVersions := versions.MeetingConstraints(versionConstraints)
+		// Use MeetingConstraintsExact to include prerelease versions
+		// when the constraint explicitly includes prerelease boundaries (e.g., >= 1.0.0-0)
+		acceptableVersions := versions.MeetingConstraintsExact(versionConstraints)
 		if !mode.forceQueryAllProviders() {
 			// If we're not forcing potential changes of version then an
 			// existing selection from the lock file takes priority over
