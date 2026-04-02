@@ -156,6 +156,40 @@ func MeetingConstraints(vc VersionConstraints) VersionSet {
 	return versions.MeetingConstraints(vc)
 }
 
+// shouldExcludePrereleases returns true if prerelease versions should be
+// excluded from version matching (use MeetingConstraints), or false if they
+// should be included (use MeetingConstraintsExact).
+//
+// Mirrors RubyGems Dependency#match? semantics: prereleases are included if
+// and only if at least one version boundary in the constraint set is itself a
+// prerelease (has a prerelease suffix, e.g. -0, -beta, -alpha, -rc). The
+// operator (~>, >=, etc.) does not affect this decision.
+func shouldExcludePrereleases(vc VersionConstraints) bool {
+	for _, sel := range vc {
+		if sel.Boundary.Prerelease != "" {
+			return false
+		}
+	}
+	return true
+}
+
+// MeetingConstraintsForProvider returns a version set matching vc, respecting
+// the prerelease inclusion convention: prereleases are included only when at
+// least one version boundary in the constraint set is itself a prerelease
+// (e.g., >= 1.0.0-0, ~> 1.0.0-beta). This mirrors RubyGems Dependency#match?
+// behavior. Constraints with no prerelease boundary exclude prereleases.
+//
+// Note: constraints like >= 1.0.0-0 previously matched only stable releases;
+// they now match prerelease versions as well.
+//
+// Use this instead of MeetingConstraints for provider version matching.
+func MeetingConstraintsForProvider(vc VersionConstraints) VersionSet {
+	if shouldExcludePrereleases(vc) {
+		return versions.MeetingConstraints(vc)
+	}
+	return versions.MeetingConstraintsExact(vc)
+}
+
 // Platform represents a target platform that a provider is or might be
 // available for.
 type Platform struct {

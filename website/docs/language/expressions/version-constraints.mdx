@@ -69,9 +69,27 @@ of OpenTofu and any providers they use. OpenTofu considers these constraints
 equal, and will only proceed if all of them can be met.
 
 A prerelease version is a version number that contains a suffix introduced by
-a dash, like `1.2.0-beta`. A prerelease version can be selected only by an
-_exact_ version constraint (the `=` operator or no operator). Prerelease
-versions do not match inexact operators such as `>=`, `~>`, etc.
+a dash, like `1.2.0-beta`. By default, prerelease versions do not match inexact
+operators such as `>=`, `~>`, etc., and can only be selected by an _exact_
+version constraint (the `=` operator or no operator).
+
+However, for provider version constraints, you can opt in to prerelease
+versions by including a prerelease suffix in at least one boundary of your
+constraint. The conventional way to do this is using `-0` as the lowest
+possible prerelease identifier:
+
+```hcl
+required_providers {
+  myprovider = {
+    source  = "mycorp/myprovider"
+    version = ">= 1.0.0-0"  # matches 1.0.0, 1.0.0-beta.1, 1.0.0-rc.1, etc.
+  }
+}
+```
+
+Any constraint with a prerelease boundary opts in to prerelease matching,
+regardless of the operator used. This mirrors the behavior of RubyGems
+version constraints.
 
 ## Best Practices
 

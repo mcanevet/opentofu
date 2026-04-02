@@ -174,3 +174,43 @@ func TestMeetingConstraints(t *testing.T) {
 		}
 	}
 }
+
+func TestShouldExcludePrereleases(t *testing.T) {
+	tests := []struct {
+		constraintStr string
+		expected      bool // true = use MeetingConstraints (exclude prereleases)
+	}{
+		// No prerelease suffix → exclude prereleases
+		{"~> 1.0", true},
+		{"~> 1.0.0", true},
+		{">= 1.0.0", true},
+		{">= 1.0.0, < 2.0.0", true},
+		{"1.0.0", true},
+
+		// Any prerelease suffix in any operator → include prereleases (mirrors RubyGems)
+		{"~> 2.0-0", false},
+		{"~> 2.0.0-0", false},
+		{">= 1.0.0-0", false},
+		{">= 1.0.0-beta", false},
+		{">= 1.0.0-alpha.1", false},
+		{">= 1.0.0-rc.1", false},
+		{"!= 1.0.0-beta", false},
+
+		// Mixed: any prerelease boundary opts in, regardless of other operators
+		{">= 1.0.0-0, ~> 2.0", false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.constraintStr, func(t *testing.T) {
+			vc, err := ParseVersionConstraints(test.constraintStr)
+			if err != nil {
+				t.Fatalf("ParseVersionConstraints failed: %v", err)
+			}
+
+			result := shouldExcludePrereleases(vc)
+			if result != test.expected {
+				t.Errorf("For constraint %s, expected useMeetingConstraints=%t, got %t", test.constraintStr, test.expected, result)
+			}
+		})
+	}
+}

@@ -267,7 +267,7 @@ func (c *Config) VerifyDependencySelections(depLocks *depsfile.Locks) []error {
 		}
 
 		selectedVersion := lock.Version()
-		allowedVersions := getproviders.MeetingConstraints(constraints)
+		allowedVersions := getproviders.MeetingConstraintsForProvider(constraints)
 		log.Printf("[TRACE] Config.VerifyDependencySelections: provider %s has %s to satisfy %q", providerAddr, selectedVersion.String(), getproviders.VersionConstraintsString(constraints))
 		if !allowedVersions.Has(selectedVersion) {
 			// The most likely cause of this is that the author of a module

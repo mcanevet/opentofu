@@ -161,7 +161,7 @@ func (c *ProvidersMirrorCommand) Run(rawArgs []string) int {
 		view.MirroringProvider(provider.ForDisplay())
 		// First we'll look for the latest version that matches the given
 		// constraint, which we'll then try to mirror for each target platform.
-		acceptable := versions.MeetingConstraints(constraints)
+		acceptable := getproviders.MeetingConstraintsForProvider(constraints)
 		avail, _, err := source.AvailableVersions(ctx, provider)
 		candidates := avail.Filter(acceptable)
 		if err == nil && len(candidates) == 0 {

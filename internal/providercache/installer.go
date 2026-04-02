@@ -315,7 +315,7 @@ func (i *Installer) ensureProviderVersionsMightNeed(
 			// unmanaged providers do not require installation
 			continue
 		}
-		acceptableVersions := versions.MeetingConstraints(versionConstraints)
+		acceptableVersions := getproviders.MeetingConstraintsForProvider(versionConstraints)
 		if !mode.forceQueryAllProviders() {
 			// If we're not forcing potential changes of version then an
 			// existing selection from the lock file takes priority over
