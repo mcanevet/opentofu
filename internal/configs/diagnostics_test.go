@@ -34,13 +34,13 @@ func TestRequiredVersion(t *testing.T) {
 			false,
 		},
 		{
-			"prerelease doesn't match with inequality",
+			"prerelease inequality matches stable release",
 			"0.8.0",
 			"> 0.7.0-beta",
-			true,
+			false,
 		},
 		{
-			"prerelease doesn't match with equality",
+			"prerelease exact constraint doesn't match stable",
 			"0.7.0",
 			"0.7.0-beta",
 			true,

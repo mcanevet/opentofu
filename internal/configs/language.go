@@ -198,17 +198,17 @@ func decodeLanguageCompatibleWithOpenTofu(block *hcl.Block) (*VersionConstraint,
 
 func validateOpenTofuCoreVersionConstraint(constraint VersionConstraint) hcl.Diagnostics {
 	var diags hcl.Diagnostics
-	// We don't permit writing prerelease versions in the version
-	// constraint arguments. We don't actually know why this rule is
-	// here but it was inherited from our predecessor and preserved
-	// for consistency until we know a reason to allow it.
+	// We allow prerelease versions in version constraints to support
+	// the semver -0 suffix convention (e.g., >= 1.0.0-0 to match prereleases).
+	// Prereleases are matched according to standard semver rules.
 	for _, required := range constraint.Required {
 		if required.Prerelease() {
 			diags = diags.Append(&hcl.Diagnostic{
-				Severity: hcl.DiagError,
-				Summary:  "Invalid required_version constraint",
+				Severity: hcl.DiagWarning,
+				Summary:  "Prerelease version constraint",
 				Detail: fmt.Sprintf(
-					"Prerelease version constraints are not supported: %s. Remove the prerelease information from the constraint. Prerelease versions of OpenTofu will match constraints using their version core only.",
+					"Using prerelease version constraint %q. Prerelease versions will be matched according to semver rules. Consider using the -0 suffix (e.g., >= %s.0) to match all prereleases of that version.",
+					required.String(),
 					required.String(),
 				),
 				Subject: constraint.DeclRange.Ptr(),
